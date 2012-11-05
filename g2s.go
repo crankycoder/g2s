@@ -8,6 +8,7 @@ import (
 
 type Statsd struct {
 	connection net.Conn
+	timeout    time.Duration
 }
 
 func NewStatsd(endpoint string, timeout time.Duration) (*Statsd, error) {
@@ -26,6 +27,7 @@ func NewStatsd(endpoint string, timeout time.Duration) (*Statsd, error) {
 	}
 	return &Statsd{
 		connection: connection,
+		timeout:    timeout,
 	}, nil
 }
 
@@ -35,19 +37,23 @@ func (s *Statsd) publish(msg sendable) {
 	buf := []byte(msg.Message())
 	n, err := s.connection.Write(buf)
 
-	if err != nil {
-		log.Printf(
-			"%s: publish: %s",
-			s.connection.RemoteAddr().String(),
-			err,
-		)
-	} else if n != len(buf) {
-		log.Printf(
-			"%s: publish: short send: %d < %d",
-			s.connection.RemoteAddr().String(),
-			n,
-			len(buf),
-		)
+    // We only handle logging of write errors if the timeout is
+    // non-zero
+	if s.timeout != 0 {
+		if err != nil {
+			log.Printf(
+				"%s: publish: %s",
+				s.connection.RemoteAddr().String(),
+				err,
+			)
+		} else if n != len(buf) {
+			log.Printf(
+				"%s: publish: short send: %d < %d",
+				s.connection.RemoteAddr().String(),
+				n,
+				len(buf),
+			)
+		}
 	}
 }
 
