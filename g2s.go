@@ -10,8 +10,17 @@ type Statsd struct {
 	connection net.Conn
 }
 
-func NewStatsd(endpoint string) (*Statsd, error) {
-	connection, err := net.DialTimeout("udp", endpoint, 3*time.Second)
+func NewStatsd(endpoint string, timeout time.Duration) (*Statsd, error) {
+
+	var connection net.Conn
+	var err error
+
+	if timeout == 0 {
+		connection, err = net.Dial("udp", endpoint)
+	} else {
+		connection, err = net.DialTimeout("udp", endpoint, timeout)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -25,6 +34,7 @@ func (s *Statsd) publish(msg sendable) {
 	// http://golang.org/pkg/net/#Conn
 	buf := []byte(msg.Message())
 	n, err := s.connection.Write(buf)
+
 	if err != nil {
 		log.Printf(
 			"%s: publish: %s",

@@ -14,7 +14,7 @@ func TestPublish1(t *testing.T) {
 	mock := NewMockStatsd(t, 12345)
 	defer mock.Shutdown()
 
-	sd, err := NewStatsd("localhost:12345")
+	sd, err := NewStatsd("localhost:12345", 0)
 	if err != nil {
 		t.Fatalf("%s", err)
 	}
@@ -31,7 +31,7 @@ func TestPublishMany(t *testing.T) {
 	mock := NewMockStatsd(t, 12345)
 	defer mock.Shutdown()
 
-	sd, err := NewStatsd("localhost:12345")
+	sd, err := NewStatsd("localhost:12345", 0)
 	if err != nil {
 		t.Fatalf("%s", err)
 	}
@@ -50,7 +50,7 @@ func TestLoad(t *testing.T) {
 	mock := NewMockStatsd(t, 12345)
 	defer mock.Shutdown()
 
-	sd, err := NewStatsd("localhost:12345")
+	sd, err := NewStatsd("localhost:12345", 0)
 	if err != nil {
 		t.Fatalf("%s", err)
 	}
